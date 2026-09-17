@@ -1,0 +1,22 @@
+# Python
+server/.venv/
+server/__pycache__/
+server/**/__pycache__/
+*.pyc
+server/*.db
+server/instance/
+
+# Environment
+.env
+server/.env
+
+# Node / Vite
+client/node_modules/
+client/dist/
+client/.vite/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
