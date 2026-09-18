@@ -1,14 +1,24 @@
+import json
+import logging
 import math
+from pathlib import Path
 
 import requests
 
 from config import Config
 
 ORS_DIRECTIONS_URL = "https://api.openrouteservice.org/v2/directions/{profile}/geojson"
+FIXTURE_PATH = Path(__file__).parent / "fixtures" / "sample_route.json"
 
 
 def get_route(start, end, profile="cycling-regular"):
     """start/end are [lat, lng]. Calls Openrouteservice and returns a normalized route dict."""
+    if not Config.ORS_API_KEY:
+        logging.warning(
+            "ORS_API_KEY not set; serving the bundled fixture route instead of calling Openrouteservice."
+        )
+        return _load_fixture()
+
     url = ORS_DIRECTIONS_URL.format(profile=profile)
     headers = {
         "Authorization": Config.ORS_API_KEY,
@@ -22,6 +32,11 @@ def get_route(start, end, profile="cycling-regular"):
     response = requests.post(url, json=body, headers=headers, timeout=10)
     response.raise_for_status()
     return normalize_response(response.json())
+
+
+def _load_fixture():
+    with open(FIXTURE_PATH) as f:
+        return json.load(f)
 
 
 def normalize_response(data):
