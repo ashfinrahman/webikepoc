@@ -7,3 +7,4 @@ load_dotenv()
 
 class Config:
     ORS_API_KEY = os.environ.get("ORS_API_KEY", "")
+    DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///webike.db")

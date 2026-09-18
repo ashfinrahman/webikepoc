@@ -2,6 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 
 from config import Config
+from models import Base, engine
 from routes import api_bp
 
 
@@ -10,6 +11,8 @@ def create_app():
     app.config.from_object(Config)
 
     CORS(app)
+
+    Base.metadata.create_all(engine)
 
     app.register_blueprint(api_bp, url_prefix="/api")
 
