@@ -5,6 +5,7 @@ server/**/__pycache__/
 *.pyc
 server/*.db
 server/instance/
+server/.pytest_cache/
 
 # Environment
 .env
