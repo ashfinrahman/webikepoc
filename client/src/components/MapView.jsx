@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Polyline, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import icon from 'leaflet/dist/images/marker-icon.png'
 import iconShadow from 'leaflet/dist/images/marker-shadow.png'
@@ -22,7 +22,7 @@ function ClickHandler({ onMapClick }) {
   return null
 }
 
-function MapView({ origin, destination, onMapClick }) {
+function MapView({ origin, destination, routeGeometry, onMapClick }) {
   return (
     <MapContainer center={PHILADELPHIA_CENTER} zoom={13} style={{ height: '500px', width: '100%' }}>
       <TileLayer
@@ -32,6 +32,7 @@ function MapView({ origin, destination, onMapClick }) {
       <ClickHandler onMapClick={onMapClick} />
       {origin && <Marker position={origin} />}
       {destination && <Marker position={destination} />}
+      {routeGeometry && <Polyline positions={routeGeometry} />}
     </MapContainer>
   )
 }
