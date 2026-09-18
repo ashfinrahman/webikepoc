@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from models import RouteRequest, SessionLocal
-from routing import get_route
+from routing import RoutingError, get_route
 
 api_bp = Blueprint("api", __name__)
 
@@ -13,11 +13,17 @@ def health():
 
 @api_bp.post("/route")
 def create_route():
-    payload = request.get_json(force=True)
-    start = payload["start"]
-    end = payload["end"]
+    payload = request.get_json(silent=True) or {}
+    start = payload.get("start")
+    end = payload.get("end")
 
-    route = get_route(start, end)
+    if not _is_valid_coord(start) or not _is_valid_coord(end):
+        return jsonify({"error": "start and end must both be [lat, lng] pairs of numbers"}), 400
+
+    try:
+        route = get_route(start, end)
+    except RoutingError as exc:
+        return jsonify({"error": str(exc)}), 502
 
     session = SessionLocal()
     try:
@@ -53,3 +59,11 @@ def list_routes():
         return jsonify([r.to_dict() for r in records])
     finally:
         session.close()
+
+
+def _is_valid_coord(value):
+    return (
+        isinstance(value, (list, tuple))
+        and len(value) == 2
+        and all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in value)
+    )

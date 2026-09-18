@@ -7,18 +7,27 @@ function App() {
   const [origin, setOrigin] = useState(null)
   const [destination, setDestination] = useState(null)
   const [route, setRoute] = useState(null)
+  const [error, setError] = useState(null)
 
   async function handleMapClick(latlng) {
     if (!origin) {
       setOrigin(latlng)
+      setError(null)
     } else if (!destination) {
       setDestination(latlng)
-      const result = await requestRoute(origin, latlng)
-      setRoute(result)
+      try {
+        const result = await requestRoute(origin, latlng)
+        setRoute(result)
+        setError(null)
+      } catch (err) {
+        setError(err.message)
+        setRoute(null)
+      }
     } else {
       setOrigin(latlng)
       setDestination(null)
       setRoute(null)
+      setError(null)
     }
   }
 
@@ -31,6 +40,7 @@ function App() {
         routeGeometry={route?.geometry}
         onMapClick={handleMapClick}
       />
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       {route && (
         <div>
           <p>

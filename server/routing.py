@@ -11,6 +11,10 @@ ORS_DIRECTIONS_URL = "https://api.openrouteservice.org/v2/directions/{profile}/g
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "sample_route.json"
 
 
+class RoutingError(Exception):
+    pass
+
+
 def get_route(start, end, profile="cycling-regular"):
     """start/end are [lat, lng]. Calls Openrouteservice and returns a normalized route dict."""
     if not Config.ORS_API_KEY:
@@ -29,8 +33,14 @@ def get_route(start, end, profile="cycling-regular"):
         "elevation": True,
     }
 
-    response = requests.post(url, json=body, headers=headers, timeout=10)
-    response.raise_for_status()
+    try:
+        response = requests.post(url, json=body, headers=headers, timeout=10)
+    except requests.RequestException as exc:
+        raise RoutingError(f"Failed to reach Openrouteservice: {exc}") from exc
+
+    if response.status_code != 200:
+        raise RoutingError(f"Openrouteservice returned status {response.status_code}")
+
     return normalize_response(response.json())
 
 
